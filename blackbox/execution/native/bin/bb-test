@@ -1,0 +1,39 @@
+#!/bin/zsh
+set -eu
+
+ROOT="${BLACKBOX_ROOT:-/Volumes/blackbox}"
+BIN="$ROOT/execution/native/bin"
+
+[[ -d "$BIN" ]] || {
+  print -u2 -- "native bin unavailable: $BIN"
+  exit 1
+}
+
+fail=0
+
+echo "===== BLACKBOX NATIVE TEST ====="
+
+for file in "$BIN"/*; do
+  [[ -f "$file" ]] || continue
+
+  first="$(/usr/bin/head -1 "$file" 2>/dev/null || true)"
+
+  case "$first" in
+    '#!/bin/zsh'*)
+      printf '%-24s ' "${file:t}"
+      if /bin/zsh -n "$file"; then
+        echo "PASS"
+      else
+        echo "FAIL"
+        fail=1
+      fi
+      ;;
+  esac
+done
+
+if (( fail )); then
+  echo "BLACKBOX NATIVE TEST: FAIL"
+  exit 1
+fi
+
+echo "BLACKBOX NATIVE TEST: PASS"
