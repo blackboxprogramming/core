@@ -1,0 +1,11 @@
+state	meaning
+absent	command or capability not present
+present	executable or mechanism exists
+configured	local configuration exists
+authenticated	valid identity or session established
+authorized	principal has permission for requested operation
+reachable	target can presently be contacted
+usable	required preconditions for requested operation are satisfied
+degraded	partially functioning
+blocked	explicit policy or permission prevents use
+unknown	state has not been established

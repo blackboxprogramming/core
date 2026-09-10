@@ -1,0 +1,66 @@
+#!/bin/zsh
+set -eu
+
+ROOT="${BLACKBOX_ROOT:-/Volumes/blackbox}"
+DOMAINS="$ROOT/authority/resolution/domains.tsv"
+PRINCIPLES="$ROOT/authority/resolution/principles.tsv"
+
+[[ $# -gt 0 ]] || {
+  print -u2 -- 'usage: bb-resolve "QUESTION"'
+  exit 1
+}
+
+QUERY="$*"
+Q="${(L)QUERY}"
+
+contains_any() {
+  local needle
+  for needle in "$@"; do
+    [[ "$Q" == *"$needle"* ]] && return 0
+  done
+  return 1
+}
+
+DOMAIN="general"
+
+if contains_any "trained" "training" "copied" "copying" "influence" "influenced" "derived from" "provenance" "timestamp" "priority" "transfer path"; then
+  DOMAIN="ai-provenance"
+elif contains_any "error" "broken" "fails" "failure" "debug" "fix" "doesn't work" "doesnt work" "stopped working" "pasting" "clipboard"; then
+  DOMAIN="software-debug"
+elif contains_any "hack" "security" "credential" "leak" "sandbox" "permission" "exploit"; then
+  DOMAIN="security"
+elif contains_any "chatgpt" "claude" "gemini" "qwen" "llama" "ollama" "model" "agent"; then
+  DOMAIN="ai-instance"
+elif contains_any "wifi" "wlan" "dns" "tcp" "udp" "port" "socket" "route" "network"; then
+  DOMAIN="network"
+elif contains_any "mac" "filesystem" "disk" "storage" "process" "memory" "ram" "terminal"; then
+  DOMAIN="local-system"
+elif contains_any "riemann" "navier" "birch" "equation" "theorem" "proof" "conjecture"; then
+  DOMAIN="math"
+elif contains_any "law" "legal" "regulation" "statute" "court" "sec" "finra"; then
+  DOMAIN="legal"
+elif contains_any "history" "historical" "when did" "earliest" "first"; then
+  DOMAIN="historical"
+elif contains_any "someone had" "people report" "reddit" "experience" "happened to"; then
+  DOMAIN="experiential"
+elif contains_any "today" "current" "right now" "latest" "status"; then
+  DOMAIN="current-status"
+fi
+
+echo
+echo "===== BLACKBOX RESOLUTION PLAN ====="
+printf '%-8s %s\n' "query:" "$QUERY"
+printf '%-8s %s\n' "domain:" "$DOMAIN"
+
+echo
+echo "SOURCE ORDER"
+/usr/bin/awk -F '\t' -v d="$DOMAIN" '
+  NR > 1 && $1 == d {
+    n=split($2,a,",")
+    for(i=1;i<=n;i++) printf "%2d. %s\n",i,a[i]
+  }
+' "$DOMAINS"
+
+echo
+echo "UNIVERSAL RULES"
+/usr/bin/awk -F '\t' 'NR > 1 {printf "%2s. %s\n",$1,$2}' "$PRINCIPLES"

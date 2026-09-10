@@ -1,0 +1,49 @@
+#!/bin/zsh
+set -eu
+
+ROOT="${BLACKBOX_ROOT:-/Volumes/blackbox}"
+REG="$ROOT/authority/capabilities/commands.tsv"
+OUT="$ROOT/knowledge/capabilities/local.tsv"
+
+[[ -r "$REG" ]] || {
+  print -u2 -- "capability registry unavailable: $REG"
+  exit 1
+}
+
+/bin/mkdir -p "${OUT:h}"
+
+tmp="${OUT}.tmp.$$"
+stamp="$(/bin/date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+printf 'command\tclass\tprovider\tstate\tpath\tobserved_at\n' > "$tmp"
+
+while IFS=$'\t' read -r command class provider default_action; do
+  [[ "$command" == "command" ]] && continue
+
+  path="$(command -v "$command" 2>/dev/null || true)"
+
+  if [[ -n "$path" ]]; then
+    state="present"
+  else
+    state="absent"
+    path=""
+  fi
+
+  printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
+    "$command" \
+    "$class" \
+    "$provider" \
+    "$state" \
+    "$path" \
+    "$stamp" \
+    >> "$tmp"
+done < "$REG"
+
+/bin/mv "$tmp" "$OUT"
+/bin/chmod 600 "$OUT"
+
+if [[ -x /usr/bin/column ]]; then
+  /usr/bin/column -t -s $'\t' "$OUT"
+else
+  /bin/cat "$OUT"
+fi
