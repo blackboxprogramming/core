@@ -1,0 +1,14 @@
+domain	order
+local-system	direct-observation,system-log,artifact,reproduction,technical-doc,firsthand-exact,search-result,generated
+software-debug	reproduction,direct-observation,firsthand-exact,source-code,system-log,technical-doc,community-consensus,search-result,generated
+security	artifact,system-log,direct-observation,reproduction,primary-record,technical-doc,scientific-primary,news-report,generated
+ai-instance	artifact,system-log,direct-observation,receipt,source-code,primary-record,technical-doc,generated
+ai-provenance	artifact,receipt,source-code,system-log,primary-record,scientific-primary,independent-corroboration,generated
+network	direct-observation,system-log,artifact,reproduction,technical-doc,firsthand-exact,search-result,generated
+hardware	direct-observation,artifact,reproduction,technical-doc,firsthand-exact,community-consensus,search-result,generated
+math	reproduction,scientific-primary,artifact,primary-record,technical-doc,secondary-analysis,generated
+legal	law-regulation,court-record,primary-record,official-summary,technical-doc,secondary-analysis,news-report,generated
+historical	artifact,primary-record,receipt,system-log,firsthand-exact,scientific-primary,secondary-analysis,generated
+experiential	firsthand-exact,reproduction,community-consensus,firsthand-near,technical-doc,official-summary,search-result,generated
+current-status	direct-observation,primary-record,system-log,official-summary,news-report,firsthand-exact,search-result,generated
+general	artifact,direct-observation,primary-record,reproduction,firsthand-exact,technical-doc,community-consensus,secondary-analysis,search-result,generated
