@@ -1,0 +1,43 @@
+#!/bin/zsh
+set -eu
+
+ROOT="${BLACKBOX_ROOT:-/Volumes/blackbox}"
+REG="$ROOT/authority/capabilities/commands.tsv"
+
+cmd="${1:-}"
+
+[[ -n "$cmd" ]] || {
+  print -u2 -- "usage: bb-which COMMAND"
+  exit 1
+}
+
+row="$(
+  /usr/bin/awk -F '\t' -v c="$cmd" '
+    NR > 1 && $1 == c { print; exit }
+  ' "$REG"
+)"
+
+path="$(command -v "$cmd" 2>/dev/null || true)"
+
+echo
+echo "===== BLACKBOX CAPABILITY ====="
+printf '%-14s %s\n' "command:" "$cmd"
+
+if [[ -n "$path" ]]; then
+  printf '%-14s %s\n' "present:" "yes"
+  printf '%-14s %s\n' "path:" "$path"
+else
+  printf '%-14s %s\n' "present:" "no"
+fi
+
+if [[ -n "$row" ]]; then
+  IFS=$'\t' read -r _ class provider action <<< "$row"
+  printf '%-14s %s\n' "class:" "$class"
+  printf '%-14s %s\n' "provider:" "$provider"
+  printf '%-14s %s\n' "base action:" "$action"
+else
+  printf '%-14s %s\n' "registered:" "no"
+fi
+
+echo
+echo "Presence does not establish configuration, authentication, authorization, reachability, or usability."
